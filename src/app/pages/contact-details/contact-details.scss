@@ -1,0 +1,133 @@
+:host {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 2rem 1rem;
+  background: var(--color-bg);
+  overflow: hidden;
+}
+
+:host::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -8%;
+  width: 62%;
+  height: 200%;
+  background: linear-gradient(
+    195deg,
+    rgba(255, 255, 255, 0) 28%,
+    rgba(255, 255, 255, 0.32) 45%,
+    rgba(255, 255, 255, 0) 63%
+  );
+  transform: rotate(16deg);
+  filter: blur(32px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+:host::after {
+  content: '';
+  position: absolute;
+  top: -4%;
+  left: 54%;
+  width: 480px;
+  height: 480px;
+  max-width: 85vw;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.16) 0%, rgba(255, 255, 255, 0) 68%);
+  transform: translateX(-50%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.panel {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 380px;
+  padding: 2.5rem 2rem;
+  background: var(--color-card-bg);
+  backdrop-filter: var(--blur-card);
+  -webkit-backdrop-filter: var(--blur-card);
+  border: 1px solid var(--color-card-border);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--color-text-muted);
+  margin-bottom: 1rem;
+
+  svg {
+    width: 36px;
+    height: 36px;
+  }
+}
+
+h1 {
+  margin: 0 0 1.5rem;
+  color: var(--color-heading);
+  font-size: 1.4rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+.details {
+  width: 100%;
+  margin: 0;
+}
+
+.detail-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding: 0.7rem 0;
+  border-top: 1px solid var(--color-input-border);
+
+  &:first-child {
+    border-top: none;
+  }
+}
+
+dt {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+dd {
+  margin: 0;
+  color: var(--color-text);
+  font-size: 0.95rem;
+}
+
+.empty {
+  color: var(--color-text-muted);
+}
+
+.back-link {
+  margin-top: 1.5rem;
+  color: #ffffff;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+
+  &:hover {
+    color: var(--color-text-muted);
+  }
+}

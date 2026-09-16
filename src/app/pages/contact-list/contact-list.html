@@ -1,0 +1,26 @@
+<header>
+  <h1>My contacts</h1>
+  <button>logout</button>
+</header>
+<main>
+  @for (contacto of contacts; track contacto.id) {
+  <div class="contacto card">
+    <a [routerLink]="['/contacts', contacto.id]">
+      <span>
+        <img src="img/person.png" alt="Foto del contacto" width="50px">
+      </span>
+      <span>
+        {{ contacto.name }} {{ contacto.lastname }}
+      </span>
+      <span>
+        {{ contacto.phone }}
+      </span>
+    </a>
+    <div>
+      <a class="button" [routerLink]="['/contacts', contacto.id, 'edit']">Edit</a>
+      <button type="button" (click)="eliminateContact(contacto.id)">Delete</button>
+    </div>
+  </div>
+  }
+  <a class="fab" routerLink="/contacts/create">+</a>
+</main>
