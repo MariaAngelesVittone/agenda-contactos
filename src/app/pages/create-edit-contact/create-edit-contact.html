@@ -1,22 +1,22 @@
 <header>
-   <h1>My contacts</h1>
-  <button>logout</button>
+  <a class="button back" routerLink="/contacts" aria-label="Back to contacts">←</a>
+  <button type="button" class="secondary">Logout</button>
 </header>
 <main>
-<form (Submit)="onSubmit($event)">
+  <form class="card" (Submit)="onSubmit($event)">
     <h1>New Contact</h1>
-    <div class="card">
-        <label for="name">Name</label>
-        <input type="text" [formField]="formCreateContact.name" placeholder="Name" />
+    <div class="field">
+      <label for="name">Name</label>
+      <input type="text" [formField]="formCreateContact.name" placeholder="Name" />
     </div>
-    <div class="card">
-        <label for="lastname">Last Name</label>
-        <input type="text" [formField]="formCreateContact.lastname" placeholder="Last Name" />
+    <div class="field">
+      <label for="lastname">Last Name</label>
+      <input type="text" [formField]="formCreateContact.lastname" placeholder="Last Name" />
     </div>
-    <div class="card">
-        <label for="phone">Phone</label>
-        <input type="text" [formField]="formCreateContact.phone" placeholder="Phone" />
+    <div class="field">
+      <label for="phone">Phone</label>
+      <input type="text" [formField]="formCreateContact.phone" placeholder="Phone" />
     </div>
-    <button>{{id() ? 'Edit contact' : 'Add contact'}}</button>
-</form>
+    <button>{{ id() ? 'Edit contact' : 'Add contact' }}</button>
+  </form>
 </main>

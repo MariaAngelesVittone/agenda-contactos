@@ -1,10 +1,11 @@
 import { Component, inject, input, OnInit } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
+import { Avatar } from '../../components/avatar/avatar';
 import { Contact } from '../../interfaces/contact';
 import { ContactService } from '../../services/contact-service';
 
 @Component({
-  imports: [RouterLink],
+  imports: [Avatar, RouterLink],
   selector: 'app-contact-details',
   styleUrl: './contact-details.scss',
   templateUrl: './contact-details.html',

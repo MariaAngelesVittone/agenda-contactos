@@ -1,21 +1,58 @@
 <header>
-  <div>
-    <a class="button" routerLink="/contacts">⬅</a>
-    <h1>{{contacto?.name}}</h1>
-  </div>
-  <button>Cerrar sesión</button>
+  <a class="button back" routerLink="/contacts" aria-label="Back to contacts">←</a>
+  <button type="button" class="secondary">Logout</button>
 </header>
-<main class="card">
-  <div>
-    <p>Phone</p> 
-    <p>{{contacto?.phone}}</p>
-  </div>
-  <div>
-    <p>Email</p>
-    <p>{{contacto?.email}}</p>
-  </div>
-  <div>
-    <p>Address</p>
-    <p>{{contacto?.address}}</p>
-  </div>
-</main>   
+<main>
+  @if (contacto) {
+    <section class="profile">
+      <app-avatar [contact]="contacto" />
+      <h1>{{ contacto.name }} {{ contacto.lastname }}</h1>
+    </section>
+
+    <ul class="info card">
+      <li class="row">
+        <span class="icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24">
+            <rect x="7" y="2.5" width="10" height="19" rx="2" />
+            <line x1="11" y1="18.5" x2="13" y2="18.5" />
+          </svg>
+        </span>
+        <div>
+          <span class="label">Phone</span>
+          <span class="value">{{ contacto.phone }}</span>
+        </div>
+      </li>
+      <li class="row">
+        <span class="icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24">
+            <rect x="3" y="5" width="18" height="14" rx="2" />
+            <polyline points="3 7 12 13 21 7" />
+          </svg>
+        </span>
+        <div>
+          <span class="label">Email</span>
+          <span class="value">{{ contacto.email || 'No email' }}</span>
+        </div>
+      </li>
+      <li class="row">
+        <span class="icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24">
+            <path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z" />
+            <circle cx="12" cy="10" r="2.5" />
+          </svg>
+        </span>
+        <div>
+          <span class="label">Address</span>
+          <span class="value">{{ contacto.address || 'No address' }}</span>
+        </div>
+      </li>
+    </ul>
+
+    <div class="actions">
+      <a class="button secondary" [routerLink]="['/contacts', contacto.id, 'edit']">Edit</a>
+      <button type="button" class="danger" (click)="eliminateContact()">Delete</button>
+    </div>
+  } @else {
+    <p class="empty">Contact not found.</p>
+  }
+</main>

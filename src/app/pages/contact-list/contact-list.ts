@@ -1,10 +1,11 @@
 import { Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import Swal from 'sweetalert2';
+import { Avatar } from '../../components/avatar/avatar';
 import { ContactService } from '../../services/contact-service';
 
 @Component({
-  imports: [RouterLink],
+  imports: [Avatar, RouterLink],
   selector: 'app-contact-list',
   styleUrl: './contact-list.scss',
   templateUrl: './contact-list.html',
