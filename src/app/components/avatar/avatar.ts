@@ -1,4 +1,4 @@
-import { Component, computed, input } from '@angular/core';
+import { Component, computed, input, signal } from '@angular/core';
 import { Contact } from '../../interfaces/contact';
 
 @Component({
@@ -9,9 +9,19 @@ import { Contact } from '../../interfaces/contact';
 })
 export class Avatar {
   contact = input.required<Contact>();
+  private failedImage = signal('');
+
+  imageUrl = computed(() => {
+    const image = this.contact().image;
+    return image && image !== this.failedImage() ? image : '';
+  });
 
   initials = computed(() => {
     const { firstName, lastName } = this.contact();
     return (firstName.charAt(0) + lastName.charAt(0)).toUpperCase();
   });
+
+  onImageError(): void {
+    this.failedImage.set(this.contact().image ?? '');
+  }
 }
