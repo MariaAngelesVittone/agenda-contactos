@@ -68,8 +68,6 @@
       <input id="address" type="text" [formField]="formCreateContact.address" />
     </div>
 
-    <button type="submit" [disabled]="saving()">
-      {{ isEditing() ? 'Save changes' : 'Add contact' }}
-    </button>
+    <button type="submit">{{ isEditing() ? 'Save changes' : 'Add contact' }}</button>
   </form>
 </main>

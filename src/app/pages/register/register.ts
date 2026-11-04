@@ -40,7 +40,6 @@ export class Register {
     );
   });
 
-  submitting = signal(false);
   errorMessage = signal('');
   showPassword = signal(false);
   showPassword2 = signal(false);
@@ -55,19 +54,11 @@ export class Register {
     }
 
     this.errorMessage.set('');
-    this.submitting.set(true);
-    const result = await this.authService.register(this.registerModel());
-    this.submitting.set(false);
-
-    if (result === 'success') {
+    if (await this.authService.register(this.registerModel())) {
       showToast('Account created successfully');
       this.router.navigate(['/login']);
-    } else if (result === 'rejected') {
-      this.errorMessage.set(
-        'We could not create your account. Check your details or try a different email.',
-      );
     } else {
-      this.errorMessage.set('We could not reach the server. Please try again in a moment.');
+      this.errorMessage.set('That email is already registered.');
     }
   }
 }

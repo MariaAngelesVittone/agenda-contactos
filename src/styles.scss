@@ -190,11 +190,6 @@ button,
   &:hover {
     background: var(--color-button-bg-hover);
   }
-
-  &:disabled {
-    opacity: 0.6;
-    pointer-events: none;
-  }
 }
 
 button.secondary,

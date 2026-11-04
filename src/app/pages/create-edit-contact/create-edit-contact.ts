@@ -21,7 +21,6 @@ export class CreateEditContact implements OnInit {
     transform: (value) => (value === undefined ? undefined : numberAttribute(value)),
   });
   isEditing = computed(() => this.id() !== undefined);
-  saving = signal(false);
 
   newContactModel = signal<Required<Contact>>({
     id: 0,
@@ -45,12 +44,12 @@ export class CreateEditContact implements OnInit {
     email(path.email, { message: 'Enter a valid email address' });
   });
 
-  async ngOnInit(): Promise<void> {
+  ngOnInit(): void {
     const routeId = this.id();
     if (routeId === undefined) {
       return;
     }
-    const contact = await this.contactService.getContactById(routeId);
+    const contact = this.contactService.getContactById(routeId);
     if (!contact) {
       showToast('Contact not found', 'error');
       this.router.navigate(['/contacts']);
@@ -67,7 +66,7 @@ export class CreateEditContact implements OnInit {
     });
   }
 
-  async onSubmit(event: Event): Promise<void> {
+  onSubmit(event: Event): void {
     event.preventDefault();
     const formState = this.formCreateContact();
     formState.markAsTouched();
@@ -75,34 +74,21 @@ export class CreateEditContact implements OnInit {
       formState.errorSummary()[0]?.fieldTree().focusBoundControl();
       return;
     }
-    if (this.saving()) {
-      return;
-    }
-
-    this.saving.set(true);
     if (this.isEditing()) {
-      await this.modifyContact();
+      this.modifyContact();
     } else {
-      await this.createContact();
+      this.createContact();
     }
-    this.saving.set(false);
   }
 
-  async createContact(): Promise<void> {
-    const createdContact = await this.contactService.addContact(this.newContactModel());
-    if (!createdContact) {
-      showToast('The contact could not be created', 'error');
-      return;
-    }
+  createContact(): void {
+    const createdContact = this.contactService.addContact(this.newContactModel());
     showToast('Contact created successfully');
     this.router.navigate(['/contacts', createdContact.id]);
   }
 
-  async modifyContact(): Promise<void> {
-    if (!(await this.contactService.editContact(this.newContactModel()))) {
-      showToast('The contact could not be edited', 'error');
-      return;
-    }
+  modifyContact(): void {
+    this.contactService.editContact(this.newContactModel());
     showToast('Contact edited successfully');
     this.router.navigate(['/contacts', this.newContactModel().id]);
   }

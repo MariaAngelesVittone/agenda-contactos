@@ -1,72 +1,43 @@
-import { inject, Injectable, signal } from '@angular/core';
+import { computed, inject, Injectable, signal } from '@angular/core';
 import { Contact } from '../interfaces/contact';
-import { showToast } from '../utils/alerts';
-import { apiFetch } from '../utils/api';
+import { readStorage, writeStorage } from '../utils/storage';
 import { AuthService } from './auth-service';
 
 @Injectable({ providedIn: 'root' })
 export class ContactService {
   private readonly authService = inject(AuthService);
+  private readonly contactsByUser = signal(readStorage<Record<number, Contact[]>>('contacts', {}));
+  private nextId = readStorage('nextContactId', 1);
 
-  readonly contacts = signal<Contact[]>([]);
+  readonly contacts = computed(() => this.contactsByUser()[this.authService.userId() ?? 0] ?? []);
 
-  async loadContacts(): Promise<boolean> {
-    const res = await this.request('');
-    if (!res.ok) {
-      return false;
-    }
-    this.contacts.set(await res.json());
-    return true;
+  getContactById(id: number): Contact | undefined {
+    return this.contacts().find((contact) => contact.id === id);
   }
 
-  async getContactById(id: number): Promise<Contact | undefined> {
-    const res = await this.request(`/${id}`);
-    return res.ok ? await res.json() : undefined;
-  }
-
-  async addContact(contact: Contact): Promise<Contact | undefined> {
-    const res = await this.request('', { method: 'POST', body: this.withoutBlanks(contact) });
-    if (!res.ok) {
-      return undefined;
-    }
-    const created: Contact = await res.json();
-    this.contacts.update((contacts) => [...contacts, created]);
+  addContact(contact: Contact): Contact {
+    const created = { ...contact, id: this.nextId++ };
+    writeStorage('nextContactId', this.nextId);
+    this.update((contacts) => [...contacts, created]);
     return created;
   }
 
-  async editContact(contact: Contact): Promise<boolean> {
-    const res = await this.request(`/${contact.id}`, {
-      method: 'PUT',
-      body: this.withoutBlanks(contact),
-    });
-    if (!res.ok) {
-      return false;
-    }
-    this.contacts.update((contacts) =>
+  editContact(contact: Contact): void {
+    this.update((contacts) =>
       contacts.map((current) => (current.id === contact.id ? contact : current)),
     );
-    return true;
   }
 
-  async deleteContact(id: number): Promise<boolean> {
-    const res = await this.request(`/${id}`, { method: 'DELETE' });
-    if (!res.ok) {
-      return false;
+  deleteContact(id: number): void {
+    this.update((contacts) => contacts.filter((contact) => contact.id !== id));
+  }
+
+  private update(change: (contacts: Contact[]) => Contact[]): void {
+    const userId = this.authService.userId();
+    if (userId === null) {
+      return;
     }
-    this.contacts.update((contacts) => contacts.filter((contact) => contact.id !== id));
-    return true;
-  }
-
-  private async request(path: string, init?: RequestInit): Promise<Response> {
-    const res = await apiFetch(`/contacts${path}`, init, this.authService.token());
-    if (res.status === 401) {
-      showToast('Your session has expired. Please log in again.', 'error');
-      this.authService.logout();
-    }
-    return res;
-  }
-
-  private withoutBlanks(contact: Contact): string {
-    return JSON.stringify(contact, (_key, value) => (value === '' ? undefined : value));
+    this.contactsByUser.update((all) => ({ ...all, [userId]: change(all[userId] ?? []) }));
+    writeStorage('contacts', this.contactsByUser());
   }
 }

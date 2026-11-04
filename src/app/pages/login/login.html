@@ -41,9 +41,7 @@
       @if (errorMessage()) {
         <p class="error" role="alert">{{ errorMessage() }}</p>
       }
-      <button type="submit" [disabled]="submitting()">
-        {{ submitting() ? 'Signing in...' : 'Login' }}
-      </button>
+      <button type="submit">Login</button>
     </form>
     <p>Don't have an account? <a routerLink="/register">Register</a></p>
   </div>

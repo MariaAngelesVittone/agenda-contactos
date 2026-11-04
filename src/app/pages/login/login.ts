@@ -26,7 +26,6 @@ export class Login {
     required(path.password, { message: 'Password is required' });
   });
 
-  submitting = signal(false);
   errorMessage = signal('');
   showPassword = signal(false);
 
@@ -40,16 +39,10 @@ export class Login {
     }
 
     this.errorMessage.set('');
-    this.submitting.set(true);
-    const result = await this.authService.login(this.loginModel());
-    this.submitting.set(false);
-
-    if (result === 'success') {
+    if (await this.authService.login(this.loginModel())) {
       this.router.navigate(['/contacts']);
-    } else if (result === 'rejected') {
-      this.errorMessage.set('Incorrect email or password.');
     } else {
-      this.errorMessage.set('We could not reach the server. Please try again in a moment.');
+      this.errorMessage.set('Incorrect email or password.');
     }
   }
 }

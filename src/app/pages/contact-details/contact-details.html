@@ -1,11 +1,9 @@
 <app-page-header backLink="/contacts" />
 <main>
-  @if (loading()) {
-    <p class="empty" role="status">Loading contact...</p>
-  } @else if (contacto(); as contact) {
+  @if (contacto) {
     <section class="profile">
-      <app-avatar [contact]="contact" />
-      <h1>{{ contact.firstName }} {{ contact.lastName }}</h1>
+      <app-avatar [contact]="contacto" />
+      <h1>{{ contacto.firstName }} {{ contacto.lastName }}</h1>
     </section>
 
     <ul class="info card">
@@ -18,7 +16,7 @@
         </span>
         <div>
           <span class="label">Phone</span>
-          <span class="value">{{ contact.number || 'No phone' }}</span>
+          <span class="value">{{ contacto.number || 'No phone' }}</span>
         </div>
       </li>
       <li class="row">
@@ -30,7 +28,7 @@
         </span>
         <div>
           <span class="label">Email</span>
-          <span class="value">{{ contact.email || 'No email' }}</span>
+          <span class="value">{{ contacto.email || 'No email' }}</span>
         </div>
       </li>
       <li class="row">
@@ -42,13 +40,13 @@
         </span>
         <div>
           <span class="label">Address</span>
-          <span class="value">{{ contact.address || 'No address' }}</span>
+          <span class="value">{{ contacto.address || 'No address' }}</span>
         </div>
       </li>
     </ul>
 
     <div class="actions">
-      <a class="button secondary" [routerLink]="['/contacts', contact.id, 'edit']">Edit</a>
+      <a class="button secondary" [routerLink]="['/contacts', contacto.id, 'edit']">Edit</a>
       <button type="button" class="danger" (click)="eliminateContact()">Delete</button>
     </div>
   } @else {

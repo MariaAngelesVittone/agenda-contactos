@@ -1,41 +1,33 @@
 <app-page-header title="My contacts" />
 <main>
-  @if (loading()) {
-    <p class="empty" role="status">Loading contacts...</p>
-  } @else if (loadFailed()) {
-    <p class="empty" role="alert">
-      We could not load your contacts. Check that the server is running and try again.
-    </p>
-  } @else {
-    @for (contacto of contacts(); track contacto.id) {
-      <div class="contacto card">
-        <a class="link" [routerLink]="['/contacts', contacto.id]">
-          <app-avatar [contact]="contacto" />
-          <span class="info">
-            <span class="name">{{ contacto.firstName }} {{ contacto.lastName }}</span>
-            <span class="phone">{{ contacto.number }}</span>
-          </span>
-        </a>
-        <div class="actions">
-          <a
-            class="button secondary"
-            [routerLink]="['/contacts', contacto.id, 'edit']"
-            aria-label="Edit {{ contacto.firstName }} {{ contacto.lastName }}"
-            >Edit</a
-          >
-          <button
-            type="button"
-            class="danger"
-            (click)="eliminateContact(contacto)"
-            aria-label="Delete {{ contacto.firstName }} {{ contacto.lastName }}"
-          >
-            Delete
-          </button>
-        </div>
+  @for (contacto of contacts(); track contacto.id) {
+    <div class="contacto card">
+      <a class="link" [routerLink]="['/contacts', contacto.id]">
+        <app-avatar [contact]="contacto" />
+        <span class="info">
+          <span class="name">{{ contacto.firstName }} {{ contacto.lastName }}</span>
+          <span class="phone">{{ contacto.number }}</span>
+        </span>
+      </a>
+      <div class="actions">
+        <a
+          class="button secondary"
+          [routerLink]="['/contacts', contacto.id, 'edit']"
+          aria-label="Edit {{ contacto.firstName }} {{ contacto.lastName }}"
+          >Edit</a
+        >
+        <button
+          type="button"
+          class="danger"
+          (click)="eliminateContact(contacto)"
+          aria-label="Delete {{ contacto.firstName }} {{ contacto.lastName }}"
+        >
+          Delete
+        </button>
       </div>
-    } @empty {
-      <p class="empty">You don't have any contacts yet. Use the + button to add one.</p>
-    }
+    </div>
+  } @empty {
+    <p class="empty">You don't have any contacts yet. Use the + button to add one.</p>
   }
   <a class="fab" routerLink="/contacts/create" aria-label="Add contact">+</a>
 </main>

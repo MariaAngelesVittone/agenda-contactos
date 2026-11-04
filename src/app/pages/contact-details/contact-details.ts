@@ -1,4 +1,4 @@
-import { Component, inject, input, numberAttribute, OnInit, signal } from '@angular/core';
+import { Component, inject, input, numberAttribute, OnInit } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { Avatar } from '../../components/avatar/avatar';
 import { PageHeader } from '../../components/page-header/page-header';
@@ -14,25 +14,23 @@ import { confirmDelete, showToast } from '../../utils/alerts';
 })
 export class ContactDetails implements OnInit {
   id = input.required({ transform: numberAttribute });
-  contacto = signal<Contact | undefined>(undefined);
-  loading = signal(true);
+  contacto: Contact | undefined;
   contactsService = inject(ContactService);
   router = inject(Router);
 
-  async ngOnInit(): Promise<void> {
-    this.contacto.set(await this.contactsService.getContactById(this.id()));
-    this.loading.set(false);
+  ngOnInit(): void {
+    this.contacto = this.contactsService.getContactById(this.id());
   }
 
   async eliminateContact(): Promise<void> {
-    const contact = this.contacto();
-    if (!contact || !(await confirmDelete(`${contact.firstName} ${contact.lastName}`))) {
+    if (!this.contacto) {
       return;
     }
-    if (!(await this.contactsService.deleteContact(contact.id))) {
-      showToast('The contact could not be deleted', 'error');
+    const { id, firstName, lastName } = this.contacto;
+    if (!(await confirmDelete(`${firstName} ${lastName}`))) {
       return;
     }
+    this.contactsService.deleteContact(id);
     showToast('Contact eliminated successfully');
     this.router.navigate(['/contacts']);
   }
