@@ -1,0 +1,9 @@
+<header>
+  @if (backLink(); as link) {
+    <a class="button back" [routerLink]="link" aria-label="Back to contacts">←</a>
+  }
+  @if (title(); as heading) {
+    <h1>{{ heading }}</h1>
+  }
+  <button type="button" class="secondary" (click)="authService.logout()">Logout</button>
+</header>

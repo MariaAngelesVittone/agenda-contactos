@@ -12,8 +12,8 @@ const Toast = Swal.mixin({
   },
 });
 
-export function showToast(title: string): void {
-  Toast.fire({ icon: 'success', title });
+export function showToast(title: string, icon: 'success' | 'error' = 'success'): void {
+  Toast.fire({ icon, title });
 }
 
 export async function confirmDelete(name: string): Promise<boolean> {

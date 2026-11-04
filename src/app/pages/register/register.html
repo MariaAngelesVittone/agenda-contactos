@@ -2,34 +2,93 @@
   <div class="card">
     <h1>Contact directory</h1>
     <h2>Register</h2>
-    <form>
+    <form novalidate (submit)="onSubmit($event)">
+      @let firstName = formRegister.firstName();
+      @let firstNameError = firstName.touched() ? firstName.errors()[0] : undefined;
       <div class="field">
-        <label for="name">Name</label>
-        <input type="text" id="name" name="name" autocomplete="given-name" required />
+        <label for="firstName">Name</label>
+        <input
+          id="firstName"
+          type="text"
+          autocomplete="given-name"
+          [formField]="formRegister.firstName"
+          [attr.aria-invalid]="!!firstNameError"
+        />
+        @if (firstNameError) {
+          <p class="error" role="alert">{{ firstNameError.message }}</p>
+        }
       </div>
+
+      @let lastName = formRegister.lastName();
+      @let lastNameError = lastName.touched() ? lastName.errors()[0] : undefined;
       <div class="field">
-        <label for="lastname">Last Name</label>
-        <input type="text" id="lastname" name="lastname" autocomplete="family-name" required />
+        <label for="lastName">Last Name</label>
+        <input
+          id="lastName"
+          type="text"
+          autocomplete="family-name"
+          [formField]="formRegister.lastName"
+          [attr.aria-invalid]="!!lastNameError"
+        />
+        @if (lastNameError) {
+          <p class="error" role="alert">{{ lastNameError.message }}</p>
+        }
       </div>
+
+      @let email = formRegister.email();
+      @let emailError = email.touched() ? email.errors()[0] : undefined;
       <div class="field">
-        <label for="username">Create Username</label>
-        <input type="text" id="username" name="username" autocomplete="username" required />
+        <label for="email">Email</label>
+        <input
+          id="email"
+          type="email"
+          autocomplete="email"
+          [formField]="formRegister.email"
+          [attr.aria-invalid]="!!emailError"
+        />
+        @if (emailError) {
+          <p class="error" role="alert">{{ emailError.message }}</p>
+        }
       </div>
+
+      @let password = formRegister.password();
+      @let passwordError = password.touched() ? password.errors()[0] : undefined;
       <div class="field">
         <label for="password">Create Password</label>
-        <input type="password" id="password" name="password" autocomplete="new-password" required />
-      </div>
-      <div class="field">
-        <label for="confirm-password">Confirm Password</label>
         <input
+          id="password"
           type="password"
-          id="confirm-password"
-          name="confirm-password"
           autocomplete="new-password"
-          required
+          [formField]="formRegister.password"
+          [attr.aria-invalid]="!!passwordError"
         />
+        @if (passwordError) {
+          <p class="error" role="alert">{{ passwordError.message }}</p>
+        }
       </div>
-      <button type="submit">Register</button>
+
+      @let password2 = formRegister.password2();
+      @let password2Error = password2.touched() ? password2.errors()[0] : undefined;
+      <div class="field">
+        <label for="password2">Confirm Password</label>
+        <input
+          id="password2"
+          type="password"
+          autocomplete="new-password"
+          [formField]="formRegister.password2"
+          [attr.aria-invalid]="!!password2Error"
+        />
+        @if (password2Error) {
+          <p class="error" role="alert">{{ password2Error.message }}</p>
+        }
+      </div>
+
+      @if (errorMessage()) {
+        <p class="error" role="alert">{{ errorMessage() }}</p>
+      }
+      <button type="submit" [disabled]="submitting()">
+        {{ submitting() ? 'Creating account...' : 'Register' }}
+      </button>
     </form>
     <p>Do you already have an account? <a routerLink="/login">Log in here</a></p>
   </div>

@@ -126,6 +126,10 @@ app-create-edit-contact {
   );
 }
 
+app-page-header {
+  display: block;
+}
+
 header {
   display: flex;
   align-items: center;
@@ -137,6 +141,14 @@ header {
 
   h1 {
     font-size: 1.35rem;
+  }
+
+  button.secondary {
+    background: var(--color-surface);
+
+    &:hover {
+      background: var(--color-sky-strong);
+    }
   }
 }
 
@@ -177,6 +189,11 @@ button,
 
   &:hover {
     background: var(--color-button-bg-hover);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    pointer-events: none;
   }
 }
 
@@ -316,7 +333,7 @@ input[aria-invalid='true'] {
     }
   }
 
-  p {
+  .card > p {
     color: var(--color-text-muted);
     font-size: 0.9rem;
   }

@@ -1,9 +1,13 @@
 export interface Contact {
-  id: string;
-  name: string;
-  lastname: string;
-  phone: string;
+  id: number;
+  firstName: string;
+  lastName: string;
+  number?: string;
   address?: string;
   email?: string;
-  imgUrl?: string;
+  image?: string;
+  company?: string;
+  description?: string;
+  isFavorite: boolean;
+  groupIds: number[];
 }

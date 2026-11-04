@@ -11,7 +11,7 @@ export class Avatar {
   contact = input.required<Contact>();
 
   initials = computed(() => {
-    const { name, lastname } = this.contact();
-    return (name.charAt(0) + lastname.charAt(0)).toUpperCase();
+    const { firstName, lastName } = this.contact();
+    return (firstName.charAt(0) + lastName.charAt(0)).toUpperCase();
   });
 }
