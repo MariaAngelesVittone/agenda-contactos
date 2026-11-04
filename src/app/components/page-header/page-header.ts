@@ -1,6 +1,7 @@
 import { Component, inject, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth-service';
+import { confirmLogout } from '../../utils/alerts';
 
 @Component({
   imports: [RouterLink],
@@ -12,4 +13,10 @@ export class PageHeader {
 
   title = input<string>();
   backLink = input<string>();
+
+  async logout(): Promise<void> {
+    if (await confirmLogout()) {
+      this.authService.logout();
+    }
+  }
 }

@@ -5,7 +5,7 @@ Aplicación web para guardar y administrar contactos, hecha con Angular. Es un p
 ## Funcionalidades
 
 - **Registro** con nombre, apellido, email y contraseña (mínimo 8 caracteres) con confirmación.
-- **Inicio y cierre de sesión.** El email no distingue mayúsculas y la contraseña no se guarda en texto plano: se guarda un hash SHA-256.
+- **Inicio y cierre de sesión.** Al cerrar sesión se pide confirmación. El email no distingue mayúsculas y la contraseña no se guarda en texto plano: se guarda un hash SHA-256.
 - **Rutas protegidas.** Sin sesión te lleva al login; con sesión no podés volver al login ni al registro.
 - **Contactos por usuario.** Cada usuario ve y administra solo los suyos.
 - **Lista de contactos** con avatar de iniciales, y botones para editar y eliminar.

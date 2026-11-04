@@ -1,4 +1,4 @@
-import Swal from 'sweetalert2';
+import Swal, { SweetAlertOptions } from 'sweetalert2';
 
 const Toast = Swal.mixin({
   toast: true,
@@ -16,22 +16,41 @@ export function showToast(title: string, icon: 'success' | 'error' = 'success'):
   Toast.fire({ icon, title });
 }
 
-export async function confirmDelete(name: string): Promise<boolean> {
+async function ask(options: SweetAlertOptions, confirmButton?: string): Promise<boolean> {
   const { isConfirmed } = await Swal.fire({
-    icon: 'warning',
-    title: `Delete ${name}?`,
-    text: 'This action cannot be undone.',
+    ...options,
     showCancelButton: true,
-    confirmButtonText: 'Delete',
-    cancelButtonText: 'Cancel',
     reverseButtons: true,
     focusCancel: true,
     buttonsStyling: false,
     customClass: {
       popup: 'confirm-popup',
-      confirmButton: 'danger',
+      confirmButton,
       cancelButton: 'secondary',
     },
   });
   return isConfirmed;
+}
+
+export function confirmDelete(name: string): Promise<boolean> {
+  return ask(
+    {
+      icon: 'warning',
+      title: `Delete ${name}?`,
+      text: 'This action cannot be undone.',
+      confirmButtonText: 'Delete',
+      cancelButtonText: 'Cancel',
+    },
+    'danger',
+  );
+}
+
+export function confirmLogout(): Promise<boolean> {
+  return ask({
+    icon: 'question',
+    title: 'Log out?',
+    text: 'Are you sure you want to leave?',
+    confirmButtonText: 'Log out',
+    cancelButtonText: 'Stay',
+  });
 }
