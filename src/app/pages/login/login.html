@@ -23,13 +23,16 @@
       @let passwordError = password.touched() ? password.errors()[0] : undefined;
       <div class="field">
         <label for="password">Password</label>
-        <input
-          id="password"
-          type="password"
-          autocomplete="current-password"
-          [formField]="formLogin.password"
-          [attr.aria-invalid]="!!passwordError"
-        />
+        <div class="password-field">
+          <input
+            id="password"
+            [type]="showPassword() ? 'text' : 'password'"
+            autocomplete="current-password"
+            [formField]="formLogin.password"
+            [attr.aria-invalid]="!!passwordError"
+          />
+          <app-password-toggle [(visible)]="showPassword" controls="password" />
+        </div>
         @if (passwordError) {
           <p class="error" role="alert">{{ passwordError.message }}</p>
         }

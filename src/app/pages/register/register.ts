@@ -1,13 +1,14 @@
 import { Component, inject, signal } from '@angular/core';
 import { email, form, FormField, minLength, required, validate } from '@angular/forms/signals';
 import { Router, RouterLink } from '@angular/router';
+import { PasswordToggle } from '../../components/password-toggle/password-toggle';
 import { RegisterForm } from '../../interfaces/register';
 import { AuthService } from '../../services/auth-service';
 import { showToast } from '../../utils/alerts';
 import { requiredText } from '../../utils/validators';
 
 @Component({
-  imports: [FormField, RouterLink],
+  imports: [FormField, PasswordToggle, RouterLink],
   selector: 'app-register',
   styleUrl: './register.scss',
   templateUrl: './register.html',
@@ -41,6 +42,8 @@ export class Register {
 
   submitting = signal(false);
   errorMessage = signal('');
+  showPassword = signal(false);
+  showPassword2 = signal(false);
 
   async onSubmit(event: Event): Promise<void> {
     event.preventDefault();

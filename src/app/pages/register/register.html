@@ -55,13 +55,16 @@
       @let passwordError = password.touched() ? password.errors()[0] : undefined;
       <div class="field">
         <label for="password">Create Password</label>
-        <input
-          id="password"
-          type="password"
-          autocomplete="new-password"
-          [formField]="formRegister.password"
-          [attr.aria-invalid]="!!passwordError"
-        />
+        <div class="password-field">
+          <input
+            id="password"
+            [type]="showPassword() ? 'text' : 'password'"
+            autocomplete="new-password"
+            [formField]="formRegister.password"
+            [attr.aria-invalid]="!!passwordError"
+          />
+          <app-password-toggle [(visible)]="showPassword" controls="password" />
+        </div>
         @if (passwordError) {
           <p class="error" role="alert">{{ passwordError.message }}</p>
         }
@@ -71,13 +74,16 @@
       @let password2Error = password2.touched() ? password2.errors()[0] : undefined;
       <div class="field">
         <label for="password2">Confirm Password</label>
-        <input
-          id="password2"
-          type="password"
-          autocomplete="new-password"
-          [formField]="formRegister.password2"
-          [attr.aria-invalid]="!!password2Error"
-        />
+        <div class="password-field">
+          <input
+            id="password2"
+            [type]="showPassword2() ? 'text' : 'password'"
+            autocomplete="new-password"
+            [formField]="formRegister.password2"
+            [attr.aria-invalid]="!!password2Error"
+          />
+          <app-password-toggle [(visible)]="showPassword2" controls="password2" />
+        </div>
         @if (password2Error) {
           <p class="error" role="alert">{{ password2Error.message }}</p>
         }

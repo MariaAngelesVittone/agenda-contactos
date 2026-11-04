@@ -286,6 +286,21 @@ input[aria-invalid='true'] {
   border-color: var(--color-danger);
 }
 
+.password-field {
+  position: relative;
+
+  input {
+    padding-right: 3rem;
+  }
+
+  app-password-toggle {
+    position: absolute;
+    top: 50%;
+    right: 0.4rem;
+    transform: translateY(-50%);
+  }
+}
+
 .error {
   color: var(--color-danger);
   font-size: 0.8rem;

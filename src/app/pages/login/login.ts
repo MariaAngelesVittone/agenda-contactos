@@ -1,11 +1,12 @@
 import { Component, inject, signal } from '@angular/core';
 import { email, form, FormField, required } from '@angular/forms/signals';
 import { Router, RouterLink } from '@angular/router';
+import { PasswordToggle } from '../../components/password-toggle/password-toggle';
 import { LoginForm } from '../../interfaces/login';
 import { AuthService } from '../../services/auth-service';
 
 @Component({
-  imports: [FormField, RouterLink],
+  imports: [FormField, PasswordToggle, RouterLink],
   selector: 'app-login',
   styleUrl: './login.scss',
   templateUrl: './login.html',
@@ -27,6 +28,7 @@ export class Login {
 
   submitting = signal(false);
   errorMessage = signal('');
+  showPassword = signal(false);
 
   async onSubmit(event: Event): Promise<void> {
     event.preventDefault();
