@@ -311,6 +311,8 @@ input[aria-invalid='true'] {
   display: grid;
   place-items: center;
   min-height: 100vh;
+  max-width: none;
+  margin: 0;
   padding: 1.5rem 1rem;
   background: var(--color-sky);
 

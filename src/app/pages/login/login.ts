@@ -8,7 +8,6 @@ import { AuthService } from '../../services/auth-service';
 @Component({
   imports: [FormField, PasswordToggle, RouterLink],
   selector: 'app-login',
-  styleUrl: './login.scss',
   templateUrl: './login.html',
 })
 export class Login {

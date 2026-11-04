@@ -14,23 +14,23 @@ import { confirmDelete, showToast } from '../../utils/alerts';
 })
 export class ContactDetails implements OnInit {
   id = input.required({ transform: numberAttribute });
-  contacto: Contact | undefined;
-  contactsService = inject(ContactService);
+  contact: Contact | undefined;
+  contactService = inject(ContactService);
   router = inject(Router);
 
   ngOnInit(): void {
-    this.contacto = this.contactsService.getContactById(this.id());
+    this.contact = this.contactService.getContactById(this.id());
   }
 
   async eliminateContact(): Promise<void> {
-    if (!this.contacto) {
+    if (!this.contact) {
       return;
     }
-    const { id, firstName, lastName } = this.contacto;
+    const { id, firstName, lastName } = this.contact;
     if (!(await confirmDelete(`${firstName} ${lastName}`))) {
       return;
     }
-    this.contactsService.deleteContact(id);
+    this.contactService.deleteContact(id);
     showToast('Contact eliminated successfully');
     this.router.navigate(['/contacts']);
   }

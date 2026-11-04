@@ -10,7 +10,6 @@ import { requiredText } from '../../utils/validators';
 @Component({
   imports: [FormField, PasswordToggle, RouterLink],
   selector: 'app-register',
-  styleUrl: './register.scss',
   templateUrl: './register.html',
 })
 export class Register {

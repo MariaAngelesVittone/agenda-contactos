@@ -1,26 +1,26 @@
 <app-page-header title="My contacts" />
 <main>
-  @for (contacto of contacts(); track contacto.id) {
-    <div class="contacto card">
-      <a class="link" [routerLink]="['/contacts', contacto.id]">
-        <app-avatar [contact]="contacto" />
+  @for (contact of contacts(); track contact.id) {
+    <div class="contact-item card">
+      <a class="link" [routerLink]="['/contacts', contact.id]">
+        <app-avatar [contact]="contact" />
         <span class="info">
-          <span class="name">{{ contacto.firstName }} {{ contacto.lastName }}</span>
-          <span class="phone">{{ contacto.number }}</span>
+          <span class="name">{{ contact.firstName }} {{ contact.lastName }}</span>
+          <span class="phone">{{ contact.number }}</span>
         </span>
       </a>
       <div class="actions">
         <a
           class="button secondary"
-          [routerLink]="['/contacts', contacto.id, 'edit']"
-          aria-label="Edit {{ contacto.firstName }} {{ contacto.lastName }}"
+          [routerLink]="['/contacts', contact.id, 'edit']"
+          aria-label="Edit {{ contact.firstName }} {{ contact.lastName }}"
           >Edit</a
         >
         <button
           type="button"
           class="danger"
-          (click)="eliminateContact(contacto)"
-          aria-label="Delete {{ contacto.firstName }} {{ contacto.lastName }}"
+          (click)="eliminateContact(contact)"
+          aria-label="Delete {{ contact.firstName }} {{ contact.lastName }}"
         >
           Delete
         </button>
