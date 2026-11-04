@@ -1,7 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { Contact } from '../../interfaces/contact';
-import { useMemoryStorage } from '../../testing/memory-storage';
 import { CreateEditContact } from './create-edit-contact';
 
 describe('CreateEditContact', () => {
@@ -9,7 +8,7 @@ describe('CreateEditContact', () => {
   let component: CreateEditContact;
 
   beforeEach(() => {
-    useMemoryStorage();
+    vi.stubGlobal('localStorage', { getItem: () => null });
     TestBed.configureTestingModule({
       imports: [CreateEditContact],
       providers: [provideRouter([])],

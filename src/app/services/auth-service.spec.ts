@@ -1,53 +1,71 @@
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
-import { useMemoryStorage } from '../testing/memory-storage';
 import { AuthService } from './auth-service';
 
-const newUser = {
-  firstName: 'Ana',
-  lastName: 'Perez',
-  email: 'ana@example.com',
-  password: 'secret1234',
-  password2: 'secret1234',
-};
+const credentials = { email: 'ana@example.com', password: 'secret1234' };
+const newUser = { firstName: 'Ana', lastName: 'Perez', ...credentials, password2: 'secret1234' };
 
 describe('AuthService', () => {
   let service: AuthService;
+  let fetchMock: ReturnType<typeof vi.fn>;
 
   beforeEach(() => {
-    useMemoryStorage();
+    const items = new Map<string, string>();
+    vi.stubGlobal('localStorage', {
+      getItem: (key: string) => items.get(key) ?? null,
+      setItem: (key: string, value: string) => items.set(key, value),
+      removeItem: (key: string) => items.delete(key),
+      clear: () => items.clear(),
+    });
+    fetchMock = vi.fn();
+    vi.stubGlobal('fetch', fetchMock);
     TestBed.configureTestingModule({ providers: [provideRouter([])] });
     service = TestBed.inject(AuthService);
   });
 
-  it('registers a user without storing the password in plain text', async () => {
-    expect(await service.register(newUser)).toBe(true);
-    expect(localStorage.getItem('agenda:users')).not.toContain(newUser.password);
-  });
+  it('logs in and keeps the token the server returns', async () => {
+    fetchMock.mockResolvedValueOnce(new Response('the-token', { status: 200 }));
 
-  it('rejects an email that is already registered, ignoring case', async () => {
-    await service.register(newUser);
-    expect(await service.register({ ...newUser, email: 'ANA@example.com' })).toBe(false);
-  });
-
-  it('logs in with the right credentials', async () => {
-    await service.register(newUser);
-    expect(await service.login({ email: 'Ana@Example.com', password: 'secret1234' })).toBe(true);
+    expect(await service.login(credentials)).toBe('success');
     expect(service.isLoggedIn()).toBe(true);
+    expect(service.token()).toBe('the-token');
+    const [url, init] = fetchMock.mock.calls[0];
+    expect(url).toMatch(/\/authentication\/authenticate$/);
+    expect(JSON.parse(init.body)).toEqual(credentials);
   });
 
-  it('rejects a wrong password or an unknown email', async () => {
-    await service.register(newUser);
-    expect(await service.login({ email: newUser.email, password: 'wrong-pass1' })).toBe(false);
-    expect(await service.login({ email: 'nobody@example.com', password: 'secret1234' })).toBe(
-      false,
-    );
+  it('rejects wrong credentials', async () => {
+    fetchMock.mockResolvedValueOnce(new Response(null, { status: 401 }));
+
+    expect(await service.login(credentials)).toBe('rejected');
     expect(service.isLoggedIn()).toBe(false);
   });
 
+  it('reports when the server cannot be reached', async () => {
+    fetchMock.mockRejectedValueOnce(new TypeError('Failed to fetch'));
+
+    expect(await service.login(credentials)).toBe('unavailable');
+    expect(service.isLoggedIn()).toBe(false);
+  });
+
+  it('registers a user without sending the password confirmation', async () => {
+    fetchMock.mockResolvedValueOnce(new Response('{}', { status: 201 }));
+
+    expect(await service.register(newUser)).toBe('success');
+    const [url, init] = fetchMock.mock.calls[0];
+    expect(url).toMatch(/\/users$/);
+    expect(JSON.parse(init.body)).toEqual({ firstName: 'Ana', lastName: 'Perez', ...credentials });
+  });
+
+  it('reports when the server refuses the registration', async () => {
+    fetchMock.mockResolvedValueOnce(new Response('{}', { status: 400 }));
+
+    expect(await service.register(newUser)).toBe('rejected');
+  });
+
   it('keeps the session after a reload', async () => {
-    await service.register(newUser);
-    await service.login({ email: newUser.email, password: newUser.password });
+    fetchMock.mockResolvedValueOnce(new Response('the-token', { status: 200 }));
+    await service.login(credentials);
 
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({ providers: [provideRouter([])] });
@@ -55,10 +73,10 @@ describe('AuthService', () => {
     expect(TestBed.inject(AuthService).isLoggedIn()).toBe(true);
   });
 
-  it('logs out, clears the session and goes to the login page', async () => {
+  it('logs out, forgets the token and goes to the login page', async () => {
     const navigate = vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
-    await service.register(newUser);
-    await service.login({ email: newUser.email, password: newUser.password });
+    fetchMock.mockResolvedValueOnce(new Response('the-token', { status: 200 }));
+    await service.login(credentials);
 
     service.logout();
 

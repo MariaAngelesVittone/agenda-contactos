@@ -2,64 +2,50 @@ import { computed, inject, Injectable, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { LoginForm } from '../interfaces/login';
 import { RegisterForm } from '../interfaces/register';
-import { User } from '../interfaces/user';
+import { apiFetch } from '../utils/api';
 import { readStorage, writeStorage } from '../utils/storage';
 
-async function hashPassword(email: string, password: string): Promise<string> {
-  const bytes = new TextEncoder().encode(`${email}:${password}`);
-  const digest = await crypto.subtle.digest('SHA-256', bytes);
-  return Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, '0')).join('');
-}
+export type AuthResult = 'success' | 'rejected' | 'unavailable';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private readonly router = inject(Router);
-  private users = readStorage<User[]>('users', []);
 
-  readonly userId = signal<number | null>(this.restoreSession());
-  readonly isLoggedIn = computed(() => this.userId() !== null);
+  readonly token = signal(readStorage('token', ''));
+  readonly isLoggedIn = computed(() => this.token() !== '');
 
-  async register(data: RegisterForm): Promise<boolean> {
-    const email = data.email.trim().toLowerCase();
-    const passwordHash = await hashPassword(email, data.password);
-    if (this.users.some((user) => user.email === email)) {
-      return false;
+  async login(credentials: LoginForm): Promise<AuthResult> {
+    const res = await apiFetch('/authentication/authenticate', {
+      method: 'POST',
+      body: JSON.stringify(credentials),
+    });
+    if (!res.ok) {
+      return this.failure(res);
     }
-    const user: User = {
-      id: Math.max(0, ...this.users.map((current) => current.id)) + 1,
-      firstName: data.firstName.trim(),
-      lastName: data.lastName.trim(),
-      email,
-      passwordHash,
-    };
-    this.users = [...this.users, user];
-    writeStorage('users', this.users);
-    return true;
+    this.saveToken(await res.text());
+    return 'success';
   }
 
-  async login(credentials: LoginForm): Promise<boolean> {
-    const email = credentials.email.trim().toLowerCase();
-    const passwordHash = await hashPassword(email, credentials.password);
-    const user = this.users.find((current) => current.email === email);
-    if (!user || user.passwordHash !== passwordHash) {
-      return false;
-    }
-    this.saveSession(user.id);
-    return true;
+  async register(data: RegisterForm): Promise<AuthResult> {
+    const { firstName, lastName, email, password } = data;
+    const res = await apiFetch('/users', {
+      method: 'POST',
+      body: JSON.stringify({ firstName, lastName, email, password }),
+    });
+    return res.ok ? 'success' : this.failure(res);
   }
 
   logout(): void {
-    this.saveSession(null);
+    this.saveToken('');
     this.router.navigate(['/login']);
   }
 
-  private restoreSession(): number | null {
-    const id = readStorage<number | null>('session', null);
-    return this.users.some((user) => user.id === id) ? id : null;
+  private failure(res: Response): AuthResult {
+    return res.status === 0 ? 'unavailable' : 'rejected';
   }
 
-  private saveSession(userId: number | null): void {
-    this.userId.set(userId);
-    writeStorage('session', userId);
+  private saveToken(token: string): void {
+    this.token.set(token);
+    writeStorage('token', token);
   }
 }

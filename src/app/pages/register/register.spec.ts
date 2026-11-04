@@ -1,14 +1,13 @@
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { RegisterForm } from '../../interfaces/register';
-import { useMemoryStorage } from '../../testing/memory-storage';
 import { Register } from './register';
 
 describe('Register', () => {
   let component: Register;
 
   beforeEach(() => {
-    useMemoryStorage();
+    vi.stubGlobal('localStorage', { getItem: () => null });
     TestBed.configureTestingModule({ imports: [Register], providers: [provideRouter([])] });
     component = TestBed.createComponent(Register).componentInstance;
   });

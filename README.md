@@ -1,11 +1,11 @@
 # Agenda de contactos
 
-Aplicación web para guardar y administrar contactos, hecha con Angular. Es un proyecto solo de frontend: no usa backend, y los usuarios, la sesión y los contactos se guardan en el navegador con `localStorage`.
+Aplicación web para guardar y administrar contactos, hecha con Angular. Se conecta a la API [AgendaApi](https://github.com/NicolasBologna/AgendaApi) (ASP.NET Core): los usuarios y los contactos viven en el back, y el front solo guarda en el navegador el token de sesión.
 
 ## Funcionalidades
 
 - **Registro** con nombre, apellido, email y contraseña (mínimo 8 caracteres) con confirmación.
-- **Inicio y cierre de sesión.** Al cerrar sesión se pide confirmación. El email no distingue mayúsculas y la contraseña no se guarda en texto plano: se guarda un hash SHA-256.
+- **Inicio y cierre de sesión** con token. Al cerrar sesión se pide confirmación, y si el token vence la app te lleva al login.
 - **Rutas protegidas.** Sin sesión te lleva al login; con sesión no podés volver al login ni al registro.
 - **Contactos por usuario.** Cada usuario ve y administra solo los suyos.
 - **Lista de contactos** con avatar de iniciales, y botones para editar y eliminar.
@@ -13,6 +13,7 @@ Aplicación web para guardar y administrar contactos, hecha con Angular. Es un p
 - **Alta y edición** con validaciones: nombre, apellido y teléfono son obligatorios; el email y la dirección son opcionales, y el email, si se completa, tiene que ser válido.
 - **Eliminar con confirmación** y avisos con SweetAlert2.
 - **Mostrar u ocultar la contraseña** con el icono de ojo.
+- **Avisos claros** si el servidor no responde o rechaza un pedido.
 - **Diseño responsive y accesible:** etiquetas asociadas a cada campo, foco visible, contraste AA, navegación con teclado y un título de página por ruta.
 
 ## Rutas
@@ -30,6 +31,22 @@ Cualquier otra dirección redirige a `/contacts`.
 
 ## Cómo ejecutarlo
 
+Hacen falta el back y el front corriendo a la vez.
+
+### 1. El back (AgendaApi)
+
+Clonalo (por ejemplo en una carpeta `BE` al lado de la de este proyecto) y levantalo con el SDK de .NET 8 o superior:
+
+```bash
+git clone https://github.com/NicolasBologna/AgendaApi.git
+cd AgendaApi
+dotnet run --project API
+```
+
+Por defecto queda escuchando en `http://localhost:5000`. Si lo corrés de otra forma (por ejemplo desde Visual Studio) y la dirección es otra, cambiala en `API_URL`, dentro de `src/app/utils/api.ts`.
+
+### 2. El front
+
 Hace falta tener instalado [Node.js](https://nodejs.org) (versión LTS) y npm.
 
 ```bash
@@ -45,6 +62,15 @@ Si en Windows PowerShell muestra que la ejecución de scripts está deshabilitad
 Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned
 ```
 
+### Usuarios de prueba
+
+La base del back trae dos usuarios de ejemplo, y también podés registrar el tuyo desde la app:
+
+| Email                         | Contraseña         |
+| ----------------------------- | ------------------ |
+| `karenbailapiola@gmail.com`   | `Pa$$w0rd`         |
+| `elluismidetotoras@gmail.com` | `lamismadesiempre` |
+
 ## Comandos
 
 | Comando         | Qué hace                                   |
@@ -59,23 +85,18 @@ Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned
 src/app/
 ├── components/   avatar, cabecera de página y botón para ver la contraseña
 ├── guards/       authGuard y guestGuard
-├── interfaces/   Contact, User, LoginForm y RegisterForm
+├── interfaces/   Contact, LoginForm y RegisterForm
 ├── pages/        login, register, contact-list, contact-details y create-edit-contact
-├── services/     AuthService y ContactService
-├── testing/      ayuda para los tests (localStorage en memoria)
-└── utils/        alertas, validadores y acceso a localStorage
+├── services/     AuthService y ContactService, que llaman a la API
+└── utils/        alertas, validadores, acceso a localStorage y llamada a la API
 ```
 
-## Cómo se guardan los datos
+## Dónde viven los datos
 
-Todo vive en el `localStorage` del navegador, con estas claves: `agenda:users`, `agenda:session`, `agenda:contacts` y `agenda:nextContactId`.
+Los usuarios y los contactos se guardan en la base de datos del back. El front solo guarda en el `localStorage` del navegador el token de sesión, con la clave `agenda:token`.
 
-Algunos límites a tener en cuenta:
-
-- Los datos existen solo en ese navegador. Si se borran los datos del sitio, desaparecen las cuentas y los contactos, y otro navegador o dispositivo no los comparte.
-- Como todo corre en el cliente, el hash de la contraseña no es seguridad real: cualquiera con acceso al navegador puede ver lo guardado.
-- Para calcular el hash se usa `crypto.subtle`, que solo está disponible en `localhost` o con `https`.
+Si el back no está corriendo, la app muestra un aviso y no puede iniciar sesión ni cargar los contactos.
 
 ## Tecnologías
 
-Angular 22, Signal Forms, SweetAlert2, SCSS y Vitest.
+Front: Angular 22, Signal Forms, SweetAlert2, SCSS y Vitest. Back: ASP.NET Core 8 con SQLite.

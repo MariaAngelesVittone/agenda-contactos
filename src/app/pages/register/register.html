@@ -92,7 +92,9 @@
       @if (errorMessage()) {
         <p class="error" role="alert">{{ errorMessage() }}</p>
       }
-      <button type="submit">Register</button>
+      <button type="submit" [disabled]="submitting()">
+        {{ submitting() ? 'Creating account...' : 'Register' }}
+      </button>
     </form>
     <p>Do you already have an account? <a routerLink="/login">Log in here</a></p>
   </div>

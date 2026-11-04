@@ -2,14 +2,13 @@ import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import Swal from 'sweetalert2';
 import { AuthService } from '../../services/auth-service';
-import { useMemoryStorage } from '../../testing/memory-storage';
 import { PageHeader } from './page-header';
 
 describe('PageHeader', () => {
   let component: PageHeader;
 
   beforeEach(() => {
-    useMemoryStorage();
+    vi.stubGlobal('localStorage', { getItem: () => null });
     Object.defineProperty(window, 'matchMedia', {
       configurable: true,
       value: () => ({ matches: false, addEventListener: () => {}, removeEventListener: () => {} }),

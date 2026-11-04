@@ -1,12 +1,12 @@
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
+import Swal from 'sweetalert2';
 import { Contact } from '../interfaces/contact';
-import { useMemoryStorage } from '../testing/memory-storage';
 import { AuthService } from './auth-service';
 import { ContactService } from './contact-service';
 
-const newContact: Contact = {
-  id: 0,
+const contact: Contact = {
+  id: 1,
   firstName: 'Ana',
   lastName: 'Perez',
   number: '11 5555-0000',
@@ -17,75 +17,123 @@ const newContact: Contact = {
 describe('ContactService', () => {
   let service: ContactService;
   let authService: AuthService;
+  let fetchMock: ReturnType<typeof vi.fn>;
+
+  const reply = (status: number, body?: unknown) =>
+    fetchMock.mockResolvedValueOnce(
+      new Response(body === undefined ? null : JSON.stringify(body), { status }),
+    );
 
   beforeEach(() => {
-    useMemoryStorage();
+    vi.stubGlobal('localStorage', { getItem: () => null, setItem: () => {} });
+    Object.defineProperty(window, 'matchMedia', {
+      configurable: true,
+      value: () => ({ matches: false, addEventListener: () => {}, removeEventListener: () => {} }),
+    });
+    vi.spyOn(window, 'scrollTo').mockImplementation(() => {});
+    fetchMock = vi.fn();
+    vi.stubGlobal('fetch', fetchMock);
     TestBed.configureTestingModule({ providers: [provideRouter([])] });
     authService = TestBed.inject(AuthService);
     service = TestBed.inject(ContactService);
-    authService.userId.set(1);
+    authService.token.set('the-token');
   });
 
-  it('adds contacts with different ids', () => {
-    const first = service.addContact(newContact);
-    const second = service.addContact(newContact);
+  afterEach(() => Swal.close());
 
-    expect(first.id).not.toBe(second.id);
-    expect(service.contacts()).toEqual([first, second]);
+  it('loads the contacts of the logged in user', async () => {
+    reply(200, [contact]);
+
+    expect(await service.loadContacts()).toBe(true);
+    expect(service.contacts()).toEqual([contact]);
+    const [url, init] = fetchMock.mock.calls[0];
+    expect(url).toMatch(/\/contacts$/);
+    expect(init.headers.authorization).toBe('Bearer the-token');
   });
 
-  it('does not reuse the id of a deleted contact', () => {
-    const first = service.addContact(newContact);
-    service.deleteContact(first.id);
+  it('reports a failed load and keeps the list empty', async () => {
+    reply(500);
 
-    expect(service.addContact(newContact).id).not.toBe(first.id);
-  });
-
-  it('finds a contact by id', () => {
-    const created = service.addContact(newContact);
-
-    expect(service.getContactById(created.id)).toEqual(created);
-    expect(service.getContactById(999)).toBeUndefined();
-  });
-
-  it('edits a contact', () => {
-    const created = service.addContact(newContact);
-    service.editContact({ ...created, firstName: 'Maria' });
-
-    expect(service.getContactById(created.id)?.firstName).toBe('Maria');
-  });
-
-  it('deletes a contact', () => {
-    const created = service.addContact(newContact);
-    service.deleteContact(created.id);
-
+    expect(await service.loadContacts()).toBe(false);
     expect(service.contacts()).toEqual([]);
   });
 
-  it('keeps the contacts of each user separate', () => {
-    service.addContact(newContact);
+  it('finds a contact by id and treats an empty answer as not found', async () => {
+    reply(200, contact);
+    expect(await service.getContactById(1)).toEqual(contact);
 
-    authService.userId.set(2);
+    reply(204);
+    expect(await service.getContactById(99)).toBeUndefined();
+  });
+
+  it('adds a contact, leaving blank fields out of the request', async () => {
+    reply(201, { ...contact, id: 7 });
+
+    const created = await service.addContact({ ...contact, id: 0, email: '', address: '' });
+
+    expect(created).toEqual({ ...contact, id: 7 });
+    expect(service.contacts()).toEqual([{ ...contact, id: 7 }]);
+    const body = JSON.parse(fetchMock.mock.calls[0][1].body);
+    expect(body).not.toHaveProperty('email');
+    expect(body).not.toHaveProperty('address');
+  });
+
+  it('fills in the groups when the server does not send them', async () => {
+    reply(201, { id: 7, firstName: 'Ana', lastName: 'Perez', isFavorite: false });
+
+    expect((await service.addContact(contact))?.groupIds).toEqual([]);
+  });
+
+  it('does not add a contact the server refused', async () => {
+    reply(400);
+
+    expect(await service.addContact(contact)).toBeUndefined();
     expect(service.contacts()).toEqual([]);
-
-    authService.userId.set(1);
-    expect(service.contacts()).toHaveLength(1);
   });
 
-  it('does not save anything when nobody is logged in', () => {
-    authService.userId.set(null);
-    service.addContact(newContact);
+  it('edits a contact', async () => {
+    reply(200, [contact]);
+    await service.loadContacts();
+    reply(204);
 
-    expect(localStorage.getItem('agenda:contacts')).toBeNull();
+    expect(await service.editContact({ ...contact, firstName: 'Maria' })).toBe(true);
+    expect(service.contacts()[0].firstName).toBe('Maria');
+    expect(fetchMock.mock.calls[1][1].method).toBe('PUT');
   });
 
-  it('keeps the contacts after a reload', () => {
-    const created = service.addContact(newContact);
+  it('keeps the list as it was when an edit is refused', async () => {
+    reply(200, [contact]);
+    await service.loadContacts();
+    reply(404);
 
-    TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideRouter([])] });
-    TestBed.inject(AuthService).userId.set(1);
+    expect(await service.editContact({ ...contact, firstName: 'Maria' })).toBe(false);
+    expect(service.contacts()[0].firstName).toBe('Ana');
+  });
 
-    expect(TestBed.inject(ContactService).contacts()).toEqual([created]);
+  it('deletes a contact', async () => {
+    reply(200, [contact]);
+    await service.loadContacts();
+    reply(204);
+
+    expect(await service.deleteContact(1)).toBe(true);
+    expect(service.contacts()).toEqual([]);
+    expect(fetchMock.mock.calls[1][1].method).toBe('DELETE');
+  });
+
+  it('keeps the contact when the delete is refused', async () => {
+    reply(200, [contact]);
+    await service.loadContacts();
+    reply(500);
+
+    expect(await service.deleteContact(1)).toBe(false);
+    expect(service.contacts()).toEqual([contact]);
+  });
+
+  it('logs the user out when the session has expired', async () => {
+    const logout = vi.spyOn(authService, 'logout').mockImplementation(() => {});
+    reply(401);
+
+    expect(await service.loadContacts()).toBe(false);
+    expect(logout).toHaveBeenCalledOnce();
   });
 });

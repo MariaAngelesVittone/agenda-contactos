@@ -1,7 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRouteSnapshot, provideRouter, RouterStateSnapshot } from '@angular/router';
 import { AuthService } from '../services/auth-service';
-import { useMemoryStorage } from '../testing/memory-storage';
 import { authGuard } from './auth-guard';
 
 describe('authGuard', () => {
@@ -11,7 +10,7 @@ describe('authGuard', () => {
     );
 
   beforeEach(() => {
-    useMemoryStorage();
+    vi.stubGlobal('localStorage', { getItem: () => null });
     TestBed.configureTestingModule({ providers: [provideRouter([])] });
   });
 
@@ -20,7 +19,7 @@ describe('authGuard', () => {
   });
 
   it('lets a logged in user through', () => {
-    TestBed.inject(AuthService).userId.set(1);
+    TestBed.inject(AuthService).token.set('the-token');
 
     expect(runGuard()).toBe(true);
   });

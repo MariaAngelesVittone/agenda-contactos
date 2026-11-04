@@ -26,6 +26,7 @@ export class Login {
     minLength(path.password, 8, { message: 'Password must be at least 8 characters' });
   });
 
+  submitting = signal(false);
   errorMessage = signal('');
   showPassword = signal(false);
 
@@ -39,10 +40,16 @@ export class Login {
     }
 
     this.errorMessage.set('');
-    if (await this.authService.login(this.loginModel())) {
+    this.submitting.set(true);
+    const result = await this.authService.login(this.loginModel());
+    this.submitting.set(false);
+
+    if (result === 'success') {
       this.router.navigate(['/contacts']);
-    } else {
+    } else if (result === 'rejected') {
       this.errorMessage.set('Incorrect email or password.');
+    } else {
+      this.errorMessage.set('We could not reach the server. Please try again in a moment.');
     }
   }
 }
