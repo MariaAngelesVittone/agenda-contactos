@@ -1,9 +1,8 @@
 <header>
   <h1>My contacts</h1>
-  <button type="button" class="secondary">Logout</button>
 </header>
 <main>
-  @for (contacto of contacts; track contacto.id) {
+  @for (contacto of contacts(); track contacto.id) {
     <div class="contacto card">
       <a class="link" [routerLink]="['/contacts', contacto.id]">
         <app-avatar [contact]="contacto" />
@@ -22,7 +21,7 @@
         <button
           type="button"
           class="danger"
-          (click)="eliminateContact(contacto.id)"
+          (click)="eliminateContact(contacto)"
           aria-label="Delete {{ contacto.name }} {{ contacto.lastname }}"
         >
           Delete

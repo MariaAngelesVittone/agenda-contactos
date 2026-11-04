@@ -3,6 +3,7 @@ import { Router, RouterLink } from '@angular/router';
 import { Avatar } from '../../components/avatar/avatar';
 import { Contact } from '../../interfaces/contact';
 import { ContactService } from '../../services/contact-service';
+import { confirmDelete, showToast } from '../../utils/alerts';
 
 @Component({
   imports: [Avatar, RouterLink],
@@ -23,10 +24,16 @@ export class ContactDetails implements OnInit {
     }
   }
 
-  eliminateContact(): void {
-    if (this.contacto) {
-      this.contactsService.deleteContact(this.contacto.id);
-      this.router.navigate(['/contacts']);
+  async eliminateContact(): Promise<void> {
+    if (!this.contacto) {
+      return;
     }
+    const { id, name, lastname } = this.contacto;
+    if (!(await confirmDelete(`${name} ${lastname}`))) {
+      return;
+    }
+    this.contactsService.deleteContact(id);
+    showToast('Contact eliminated successfully');
+    this.router.navigate(['/contacts']);
   }
 }

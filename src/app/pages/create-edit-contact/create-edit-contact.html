@@ -1,22 +1,75 @@
 <header>
   <a class="button back" routerLink="/contacts" aria-label="Back to contacts">←</a>
-  <button type="button" class="secondary">Logout</button>
 </header>
 <main>
-  <form class="card" (Submit)="onSubmit($event)">
-    <h1>New Contact</h1>
+  <form class="card" novalidate (submit)="onSubmit($event)">
+    <h1>{{ id() ? 'Edit contact' : 'New contact' }}</h1>
+
+    @let name = formCreateContact.name();
+    @let nameError = name.touched() ? name.errors()[0] : undefined;
     <div class="field">
       <label for="name">Name</label>
-      <input type="text" [formField]="formCreateContact.name" placeholder="Name" />
+      <input
+        id="name"
+        type="text"
+        [formField]="formCreateContact.name"
+        [attr.aria-invalid]="!!nameError"
+      />
+      @if (nameError) {
+        <p class="error" role="alert">{{ nameError.message }}</p>
+      }
     </div>
+
+    @let lastname = formCreateContact.lastname();
+    @let lastnameError = lastname.touched() ? lastname.errors()[0] : undefined;
     <div class="field">
       <label for="lastname">Last Name</label>
-      <input type="text" [formField]="formCreateContact.lastname" placeholder="Last Name" />
+      <input
+        id="lastname"
+        type="text"
+        [formField]="formCreateContact.lastname"
+        [attr.aria-invalid]="!!lastnameError"
+      />
+      @if (lastnameError) {
+        <p class="error" role="alert">{{ lastnameError.message }}</p>
+      }
     </div>
+
+    @let phone = formCreateContact.phone();
+    @let phoneError = phone.touched() ? phone.errors()[0] : undefined;
     <div class="field">
       <label for="phone">Phone</label>
-      <input type="text" [formField]="formCreateContact.phone" placeholder="Phone" />
+      <input
+        id="phone"
+        type="tel"
+        [formField]="formCreateContact.phone"
+        [attr.aria-invalid]="!!phoneError"
+      />
+      @if (phoneError) {
+        <p class="error" role="alert">{{ phoneError.message }}</p>
+      }
     </div>
-    <button>{{ id() ? 'Edit contact' : 'Add contact' }}</button>
+
+    @let email = formCreateContact.email();
+    @let emailError = email.touched() ? email.errors()[0] : undefined;
+    <div class="field">
+      <label for="email">Email (optional)</label>
+      <input
+        id="email"
+        type="email"
+        [formField]="formCreateContact.email"
+        [attr.aria-invalid]="!!emailError"
+      />
+      @if (emailError) {
+        <p class="error" role="alert">{{ emailError.message }}</p>
+      }
+    </div>
+
+    <div class="field">
+      <label for="address">Address (optional)</label>
+      <input id="address" type="text" [formField]="formCreateContact.address" />
+    </div>
+
+    <button type="submit">{{ id() ? 'Save changes' : 'Add contact' }}</button>
   </form>
 </main>
