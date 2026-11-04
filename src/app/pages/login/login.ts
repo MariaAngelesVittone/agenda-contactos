@@ -1,5 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
-import { email, form, FormField, required } from '@angular/forms/signals';
+import { email, form, FormField, minLength, required } from '@angular/forms/signals';
 import { Router, RouterLink } from '@angular/router';
 import { PasswordToggle } from '../../components/password-toggle/password-toggle';
 import { LoginForm } from '../../interfaces/login';
@@ -24,6 +24,7 @@ export class Login {
     required(path.email, { message: 'Email is required' });
     email(path.email, { message: 'Enter a valid email address' });
     required(path.password, { message: 'Password is required' });
+    minLength(path.password, 8, { message: 'Password must be at least 8 characters' });
   });
 
   errorMessage = signal('');

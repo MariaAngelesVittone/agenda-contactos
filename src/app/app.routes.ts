@@ -10,31 +10,37 @@ import { guestGuard } from './guards/guest-guard';
 export const routes: Routes = [
     {
         path: "login",
+        title: "Login | Contact directory",
         component: Login,
         canActivate: [guestGuard]
     },
     {
         path: "register",
+        title: "Register | Contact directory",
         component: Register,
         canActivate: [guestGuard]
     },
     {
         path: "contacts",
+        title: "My contacts | Contact directory",
         component: ContactList,
         canActivate: [authGuard]
     },
     {
         path: "contacts/create",
+        title: "New contact | Contact directory",
         component: CreateEditContact,
         canActivate: [authGuard]
     },
     {
         path: "contacts/:id",
+        title: "Contact details | Contact directory",
         component: ContactDetails,
         canActivate: [authGuard]
     },
     {
         path: "contacts/:id/edit",
+        title: "Edit contact | Contact directory",
         component: CreateEditContact,
         canActivate: [authGuard]
     },
@@ -42,5 +48,9 @@ export const routes: Routes = [
         path: "",
         redirectTo: "contacts",
         pathMatch: "full"
+    },
+    {
+        path: "**",
+        redirectTo: "contacts"
     }
 ];
